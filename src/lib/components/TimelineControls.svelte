@@ -2,7 +2,7 @@
 	import { appState } from '$lib/state.svelte';
 
 	const summary = $derived(appState.summary);
-	const speeds = [1, 10, 100, 1000];
+	const speeds = [1, 10, 100, 1000, 10000];
 
 	let rafId: number | null = null;
 	let lastFrameMs: number | null = null;
