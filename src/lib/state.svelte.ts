@@ -5,6 +5,7 @@ import type { DatasetSummary } from './types';
 export type WizardStep = 'data' | 'map' | 'sos' | 'export';
 export type TailMode = 'full' | 'fading' | 'current';
 export type BasemapId = 'osm' | 'esri-satellite' | 'esri-ocean';
+export type SosBasemapId = 'none' | 'imagery';
 
 /** Central reactive app state shared across modules/components (client-only, SSR disabled). */
 class AppState {
@@ -17,6 +18,7 @@ class AppState {
 	speedMultiplier = $state(10);
 	tailMode = $state<TailMode>('fading');
 	basemap = $state<BasemapId>('osm');
+	sosBasemap = $state<SosBasemapId>('imagery');
 
 	summary = $derived<DatasetSummary | null>(this.dataset ? summarizeDataset(this.dataset) : null);
 

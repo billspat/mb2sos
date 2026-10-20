@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { appState } from '$lib/state.svelte';
-	import { renderSosFrame, SOS_WIDTH, SOS_HEIGHT } from '$lib/sosRenderer';
+	import { renderSosFrame, SOS_WIDTH, SOS_HEIGHT, SOS_BASEMAPS } from '$lib/sosRenderer';
 	import { CanvasVideoRecorder, downloadBlob } from '$lib/videoRecorder';
 	import TimelineControls from './TimelineControls.svelte';
 
@@ -8,19 +8,39 @@
 	let recorder: CanvasVideoRecorder | null = null;
 	let recording = $state(false);
 	let recordError = $state<string | null>(null);
+	let basemapImages = new Map<string, HTMLImageElement>();
+	let basemapLoaded = $state(0); // bump to trigger a re-render once an image finishes loading
 
 	const dataset = $derived(appState.dataset);
 	const summary = $derived(appState.summary);
+	const activeBasemapImage = $derived.by(() => {
+		basemapLoaded; // track
+		return basemapImages.get(appState.sosBasemap) ?? null;
+	});
+
+	$effect(() => {
+		for (const basemap of SOS_BASEMAPS) {
+			if (basemapImages.has(basemap.id)) continue;
+			const img = new Image();
+			img.onload = () => (basemapLoaded += 1);
+			img.src = basemap.url;
+			basemapImages.set(basemap.id, img);
+		}
+	});
 
 	$effect(() => {
 		if (!canvasEl || !dataset || !summary) return;
-		// re-render whenever time, trail mode, or dataset changes
+		// re-render whenever time, trail mode, basemap, or dataset changes;
+		// `basemapLoaded` is read explicitly so a late image load triggers a redraw
+		// even though `activeBasemapImage` keeps the same object reference.
+		basemapLoaded;
 		renderSosFrame(
 			canvasEl,
 			dataset,
 			appState.currentTimeMs,
 			appState.tailMode,
-			summary.individualIds
+			summary.individualIds,
+			activeBasemapImage
 		);
 	});
 
@@ -79,6 +99,18 @@
 			>
 				{recording ? 'Stop & download' : 'Record SOS preview video'}
 			</button>
+			<label class="flex items-center gap-2 text-sm text-slate-300">
+				Basemap
+				<select
+					bind:value={appState.sosBasemap}
+					class="rounded-md border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-100"
+				>
+					<option value="none">None</option>
+					{#each SOS_BASEMAPS as basemap (basemap.id)}
+						<option value={basemap.id}>{basemap.label}</option>
+					{/each}
+				</select>
+			</label>
 			<span class="text-xs text-slate-500">Press Play on the timeline below, then record.</span>
 		</div>
 

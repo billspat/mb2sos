@@ -55,12 +55,33 @@ whatever CSV files are in `static/samples/` — there are no hardcoded datasets 
    ```
 
    (This also runs automatically as part of `pnpm dev` and `pnpm build`.)
+
 3. The script sniffs each CSV's header and first data row to fill in a label (from
    `study-name`, falling back to the filename) and species (from
    `individual-taxon-canonical-name`). Commit both the new CSV and the updated
    `static/samples/manifest.json`.
 
 Only use real downloaded data here — no synthetic/placeholder tracks.
+
+## SOS studio basemap
+
+The Science on a Sphere preview canvas (Module 3 only — the QGIS export stays basemap-free)
+draws `static/basemaps/imagery.jpg` under the animated tracks: a full-globe, 2:1 Plate Carrée
+(EPSG:4326) image with the prime meridian centered and country borders overlaid, generated from
+[Natural Earth](https://www.naturalearthdata.com/) public-domain data. Esri's basemap tiles are
+Web Mercator and can't represent a true -90°..90° extent, so they crop/distort at the poles —
+Natural Earth's raster is already a full equirectangular grid, so it maps pixel-for-pixel onto
+the canvas with no cropping.
+
+To regenerate it (one-time, downloads ~90MB of source data, so it isn't run automatically):
+
+```sh
+.venv/bin/python scripts/generate_basemaps.py
+```
+
+This writes `static/basemaps/imagery.jpg` at 2048×1024 — commit the updated file. The Python
+dependencies (`rasterio`, `geopandas`, `pillow`, etc.) are listed in `installed_python_libs.txt`
+and already installed in `.venv`.
 
 ## Deploying to Vercel
 

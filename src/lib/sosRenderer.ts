@@ -42,21 +42,36 @@ function drawGraticule(ctx: CanvasRenderingContext2D, width: number, height: num
 	ctx.stroke();
 }
 
-/** Renders the current animation frame (graticule + trails + heads) onto the given canvas. */
+export interface SosBasemap {
+	id: string;
+	label: string;
+	url: string;
+}
+
+export const SOS_BASEMAPS: SosBasemap[] = [
+	{ id: 'imagery', label: 'Imagery (with borders)', url: '/basemaps/imagery.jpg' }
+];
+
+/** Renders the current animation frame (basemap + trails + heads) onto the given canvas. */
 export function renderSosFrame(
 	canvas: HTMLCanvasElement,
 	dataset: Dataset,
 	currentTimeMs: number,
 	tailMode: TailMode,
-	individualIds: string[]
+	individualIds: string[],
+	basemapImage: HTMLImageElement | null = null
 ) {
 	const ctx = canvas.getContext('2d');
 	if (!ctx) return;
 	const { width, height } = canvas;
 
-	ctx.fillStyle = '#0b1120';
-	ctx.fillRect(0, 0, width, height);
-	drawGraticule(ctx, width, height);
+	if (basemapImage) {
+		ctx.drawImage(basemapImage, 0, 0, width, height);
+	} else {
+		ctx.fillStyle = '#0b1120';
+		ctx.fillRect(0, 0, width, height);
+		drawGraticule(ctx, width, height);
+	}
 
 	const visible = visiblePointsAtTime(dataset, currentTimeMs, tailMode);
 	for (const [id, points] of visible) {

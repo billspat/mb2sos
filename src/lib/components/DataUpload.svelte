@@ -108,8 +108,8 @@
 		{#if !sampleTermsAccepted}
 			<div class="mt-2 rounded-lg border border-amber-700 bg-amber-950/40 p-4">
 				<p class="text-sm text-amber-200">
-					These example datasets are real Movebank downloads kept in this project's folder and
-					are subject to each study's Data Use Agreement. By continuing you agree to respect the
+					These example datasets are real Movebank downloads kept in this project's folder and are
+					subject to each study's Data Use Agreement. By continuing you agree to respect the
 					<a
 						href="https://www.movebank.org/cms/movebank-content/movebank-terms-of-use"
 						target="_blank"
