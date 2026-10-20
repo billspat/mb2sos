@@ -11,7 +11,8 @@ movement data into QGIS-ready, NOAA Science on a Sphere (SOS) hand-off packages.
 2. **Map & time-lapse** — animate 2D trajectories on a Leaflet map (OSM / Esri Satellite / Esri
    Ocean basemaps) with play/pause, speed multiplier, a chronological scrubber, and trail modes
    (full trajectory, fading tail, current position only), plus a live metrics HUD.
-3. **SOS studio** — render a 2:1 Plate Carrée (EPSG:4326) canvas animation matching what Science
+3. **SOS studio** — render a 2:1 Plate Carrée (EPSG:4326) canvas animation with selectable global
+   basemaps (OpenStreetMap, Esri World Imagery, Esri Ocean Basemap) matching what Science
    on a Sphere projects, and record it to a video file in-browser (`MediaRecorder`).
 4. **QGIS hand-off** — export `epsg4326_telemetry.geojson`, `movebank_sos_ready.csv`, and a
    `README_SOS_Hand-off.txt` metadata summary, individually or bundled as a ZIP.
@@ -55,6 +56,7 @@ whatever CSV files are in `static/samples/` — there are no hardcoded datasets 
    ```
 
    (This also runs automatically as part of `pnpm dev` and `pnpm build`.)
+
 3. The script sniffs each CSV's header and first data row to fill in a label (from
    `study-name`, falling back to the filename) and species (from
    `individual-taxon-canonical-name`). Commit both the new CSV and the updated

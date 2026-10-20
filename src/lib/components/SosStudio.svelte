@@ -1,6 +1,14 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { appState } from '$lib/state.svelte';
-	import { renderSosFrame, SOS_WIDTH, SOS_HEIGHT } from '$lib/sosRenderer';
+	import {
+		renderSosFrame,
+		getBasemapImage,
+		preloadBasemaps,
+		SOS_WIDTH,
+		SOS_HEIGHT
+	} from '$lib/sosRenderer';
+	import { BASEMAPS, SOS_BASEMAP_OPTIONS, type SosBasemapId } from '$lib/basemaps';
 	import { CanvasVideoRecorder, downloadBlob } from '$lib/videoRecorder';
 	import TimelineControls from './TimelineControls.svelte';
 
@@ -8,21 +16,50 @@
 	let recorder: CanvasVideoRecorder | null = null;
 	let recording = $state(false);
 	let recordError = $state<string | null>(null);
+	let basemapLoadedVersion = $state(0);
 
 	const dataset = $derived(appState.dataset);
 	const summary = $derived(appState.summary);
+	const currentAttribution = $derived(
+		appState.sosBasemap !== 'none' ? BASEMAPS[appState.sosBasemap]?.attribution : ''
+	);
+
+	onMount(() => {
+		preloadBasemaps();
+	});
 
 	$effect(() => {
 		if (!canvasEl || !dataset || !summary) return;
-		// re-render whenever time, trail mode, or dataset changes
+
+		// Track reactivity
+		const basemapId = appState.sosBasemap;
+		appState.currentTimeMs;
+		appState.tailMode;
+		basemapLoadedVersion;
+
+		const img = getBasemapImage(basemapId, () => {
+			basemapLoadedVersion++;
+		});
+
 		renderSosFrame(
 			canvasEl,
 			dataset,
 			appState.currentTimeMs,
 			appState.tailMode,
-			summary.individualIds
+			summary.individualIds,
+			basemapId,
+			img
 		);
 	});
+
+	function handleBasemapChange(e: Event) {
+		const target = e.currentTarget as HTMLSelectElement;
+		const val = target.value as SosBasemapId;
+		appState.sosBasemap = val;
+		if (val !== 'none') {
+			appState.basemap = val;
+		}
+	}
 
 	async function toggleRecording() {
 		if (!canvasEl) return;
@@ -67,19 +104,41 @@
 			></canvas>
 		</div>
 
-		<div class="mt-4 flex items-center gap-3">
-			<button
-				type="button"
-				onclick={toggleRecording}
-				class="rounded-md px-4 py-1.5 text-sm font-medium text-white"
-				class:bg-red-700={recording}
-				class:hover:bg-red-600={recording}
-				class:bg-emerald-700={!recording}
-				class:hover:bg-emerald-600={!recording}
-			>
-				{recording ? 'Stop & download' : 'Record SOS preview video'}
-			</button>
-			<span class="text-xs text-slate-500">Press Play on the timeline below, then record.</span>
+		<!-- Controls below canvas: Basemap dropdown & Record button -->
+		<div class="mt-4 flex flex-wrap items-center justify-between gap-4">
+			<div class="flex flex-wrap items-center gap-2">
+				<label for="sos-basemap-select" class="text-sm font-medium text-slate-300">
+					Basemap:
+				</label>
+				<select
+					id="sos-basemap-select"
+					value={appState.sosBasemap}
+					onchange={handleBasemapChange}
+					class="rounded-md border border-slate-600 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus:border-sky-500 focus:outline-none"
+				>
+					{#each SOS_BASEMAP_OPTIONS as opt (opt.id)}
+						<option value={opt.id}>{opt.label}</option>
+					{/each}
+				</select>
+				{#if currentAttribution}
+					<span class="text-xs text-slate-500">{currentAttribution}</span>
+				{/if}
+			</div>
+
+			<div class="flex items-center gap-3">
+				<button
+					type="button"
+					onclick={toggleRecording}
+					class="rounded-md px-4 py-1.5 text-sm font-medium text-white transition-colors"
+					class:bg-red-700={recording}
+					class:hover:bg-red-600={recording}
+					class:bg-emerald-700={!recording}
+					class:hover:bg-emerald-600={!recording}
+				>
+					{recording ? 'Stop & download' : 'Record SOS preview video'}
+				</button>
+				<span class="text-xs text-slate-500">Press Play on the timeline below, then record.</span>
+			</div>
 		</div>
 
 		{#if recordError}

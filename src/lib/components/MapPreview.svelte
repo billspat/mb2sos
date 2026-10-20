@@ -2,6 +2,7 @@
 	import 'leaflet/dist/leaflet.css';
 	import type * as Leaflet from 'leaflet';
 	import { appState, type BasemapId } from '$lib/state.svelte';
+	import { BASEMAPS } from '$lib/basemaps';
 	import { visiblePointsAtTime, metricsAtTime, colorForIndividual } from '$lib/geo';
 	import TimelineControls from './TimelineControls.svelte';
 
@@ -14,24 +15,6 @@
 	const dataset = $derived(appState.dataset);
 	const summary = $derived(appState.summary);
 	const metrics = $derived(dataset ? metricsAtTime(dataset, appState.currentTimeMs) : null);
-
-	const BASEMAPS: Record<BasemapId, { label: string; url: string; attribution: string }> = {
-		osm: {
-			label: 'OpenStreetMap',
-			url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-			attribution: '&copy; OpenStreetMap contributors'
-		},
-		'esri-satellite': {
-			label: 'Esri World Imagery',
-			url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-			attribution: 'Tiles &copy; Esri'
-		},
-		'esri-ocean': {
-			label: 'Esri Ocean Basemap',
-			url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
-			attribution: 'Tiles &copy; Esri'
-		}
-	};
 
 	$effect(() => {
 		let cancelled = false;
@@ -62,7 +45,11 @@
 			control.addTo(map);
 			map.on('baselayerchange', (e: Leaflet.LayersControlEvent) => {
 				const match = Object.entries(BASEMAPS).find(([, v]) => v.label === e.name);
-				if (match) appState.basemap = match[0] as BasemapId;
+				if (match) {
+					const id = match[0] as BasemapId;
+					appState.basemap = id;
+					appState.sosBasemap = id;
+				}
 			});
 
 			renderTracks();
