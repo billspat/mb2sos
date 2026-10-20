@@ -81,10 +81,11 @@
 </script>
 
 <section class="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-	<h2 class="text-lg font-semibold text-slate-100">2. Or search Movebank directly</h2>
+	<h2 class="text-lg font-semibold text-slate-100">2. IN DEVELOPMENT search Movebank directly</h2>
 	<p class="mt-1 text-sm text-slate-400">
-		Live search can be slow or empty for many species — public, download-ready studies are limited.
-		Upload is usually faster for class activities.
+		This feature is currently in development and not working/buggy. 
+        Live search can be slow or empty for many species — public, download-ready studies are limited.
+		Finding data on Movebank, downloading it, then Uploading to this app is the preferred method for getting data 
 	</p>
 
 	{#if !termsAccepted}
