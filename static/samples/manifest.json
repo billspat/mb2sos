@@ -1,5 +1,10 @@
 [
 	{
+		"file": "Bobcat (Lynx rufus) from Carnivore movements near Black Rock Forest New York.csv",
+		"label": "Carnivore movements near Black Rock Forest New York",
+		"species": "Lynx rufus"
+	},
+	{
 		"file": "Straw-colored fruit bats (Eidolon helvum) in Africa 2009-2014-gps.csv",
 		"label": "Straw-colored fruit bats (Eidolon helvum) in Africa 2009-2014",
 		"species": "Eidolon helvum"

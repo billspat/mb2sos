@@ -8,6 +8,7 @@
 	let dragOver = $state(false);
 	let samples = $state<SampleDataset[]>([]);
 	let samplesError = $state<string | null>(null);
+	let sampleTermsAccepted = $state(false);
 
 	$effect(() => {
 		listSampleDatasets()
@@ -104,7 +105,27 @@
 
 	<div class="mt-6">
 		<h3 class="text-sm font-medium text-slate-200">Or load a real Movebank dataset on file:</h3>
-		{#if samplesError}
+		{#if !sampleTermsAccepted}
+			<div class="mt-2 rounded-lg border border-amber-700 bg-amber-950/40 p-4">
+				<p class="text-sm text-amber-200">
+					These example datasets are real Movebank downloads kept in this project's folder and
+					are subject to each study's Data Use Agreement. By continuing you agree to respect the
+					<a
+						href="https://www.movebank.org/cms/movebank-content/movebank-terms-of-use"
+						target="_blank"
+						rel="noreferrer"
+						class="underline">Movebank Terms of Use</a
+					> and any study-specific license terms.
+				</p>
+				<button
+					type="button"
+					onclick={() => (sampleTermsAccepted = true)}
+					class="mt-3 rounded-md bg-amber-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-600"
+				>
+					I agree, let me use an example dataset
+				</button>
+			</div>
+		{:else if samplesError}
 			<p class="mt-2 text-sm text-red-300">{samplesError}</p>
 		{:else if samples.length === 0}
 			<p class="mt-2 text-sm text-slate-500">No sample datasets found yet.</p>
@@ -131,9 +152,8 @@
 			</ul>
 		{/if}
 		<p class="mt-2 text-xs text-slate-500">
-			These are real Movebank downloads kept in this project's <span class="font-mono"
-				>static/samples</span
-			> folder — add more CSV exports there and they'll show up here automatically.
+			These are real Movebank downloads added to this project's folder. Do not download or use
+			without permission.
 		</p>
 	</div>
 </section>
